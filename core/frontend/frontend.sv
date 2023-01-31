@@ -15,7 +15,7 @@
 // This module interfaces with the instruction cache, handles control
 // change request from the back-end and does branch prediction.
 
-// CHANGED
+// CHANGED test
 
 module frontend import ariane_pkg::*; #(
   parameter ariane_pkg::ariane_cfg_t ArianeCfg = ariane_pkg::ArianeDefaultConfig
