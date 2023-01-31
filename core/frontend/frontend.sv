@@ -293,6 +293,16 @@ module frontend import ariane_pkg::*; #(
     // 5. Pipeline Flush because of CSR side effects
     // Mis-predict handling is a little bit different
     // select PC a.k.a PC Gen
+    
+    // LAB2 code:
+    integer bp_valid_counter;
+    integer is_mispredict_counter;
+
+    always_ff @(posedge clk) begin
+      if (bp_valid) bp_valid_counter++;
+      if (is_mispredict) is_mispredict_counter;
+    end 
+
     always_comb begin : npc_select
       automatic logic [riscv::VLEN-1:0] fetch_address;
       // check whether we come out of reset
