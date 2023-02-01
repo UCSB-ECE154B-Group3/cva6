@@ -299,17 +299,17 @@ module frontend import ariane_pkg::*; #(
     integer bp_valid_counter;
     integer is_mispredict_counter;
 
-    always_ff @(posedge clk_i) begin
-      if (bp_valid) bp_valid_counter++;
-      if (is_mispredict) is_mispredict_counter++;
-    end
-
     initial begin
         f = $fopen("bp.txt","w");
+        bp_valid_counter = 0;
+        is_mispredict_counter = 0;
     end
-    always @(posedge clk_i) begin
-        $fwrite(f, "%f\n bp_valid_counter:      ", $itor(bp_valid_counter));
-        $fwrite(f, "%f\n is_mispredict_counter: ", $itor(is_mispredict_counter));
+    always_ff @(posedge clk_i) begin
+        if (resolved_branch_i.valid) bp_valid_counter++;
+        if (is_mispredict) is_mispredict_counter++;
+        $fwrite(f, "bp_valid_counter:%d\n", bp_valid_counter);
+        $fwrite(f, "is_mispredict_counter:%d\n", is_mispredict_counter);
+        $fwrite(f, "Rate:%f\n", 1 - $itor(is_mispredict_counter)/$itor(bp_valid_counter) );
     end 
     // end LAB2 code 
     always_comb begin : npc_select
