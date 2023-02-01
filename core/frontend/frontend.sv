@@ -295,14 +295,23 @@ module frontend import ariane_pkg::*; #(
     // select PC a.k.a PC Gen
     
     // LAB2 code:
+    integer f;
     integer bp_valid_counter;
     integer is_mispredict_counter;
 
-    always_ff @(posedge clk) begin
+    always_ff @(posedge clk_i) begin
       if (bp_valid) bp_valid_counter++;
-      if (is_mispredict) is_mispredict_counter;
-    end 
+      if (is_mispredict) is_mispredict_counter++;
+    end
 
+    initial begin
+        f = $fopen("bp.txt","w");
+    end
+    always @(posedge clk_i) begin
+        $fwrite(f, "%f\n bp_valid_counter:      ", $itor(bp_valid_counter));
+        $fwrite(f, "%f\n is_mispredict_counter: ", $itor(is_mispredict_counter));
+    end 
+    // end LAB2 code 
     always_comb begin : npc_select
       automatic logic [riscv::VLEN-1:0] fetch_address;
       // check whether we come out of reset
