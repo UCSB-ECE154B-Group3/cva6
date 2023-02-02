@@ -303,13 +303,14 @@ module frontend import ariane_pkg::*; #(
         f = $fopen("bp.txt","w");
         bp_valid_counter = 0;
         is_mispredict_counter = 0;
+        // bht_q.NR_ENTRIES = 1024;
     end
     always_ff @(posedge clk_i) begin
         if (resolved_branch_i.valid) bp_valid_counter++;
         if (is_mispredict) is_mispredict_counter++;
         $fwrite(f, "bp_valid_counter:%d\n", bp_valid_counter);
         $fwrite(f, "is_mispredict_counter:%d\n", is_mispredict_counter);
-        $fwrite(f, "Rate:%f\n", 1 - $itor(is_mispredict_counter)/$itor(bp_valid_counter) );
+        $fwrite(f, "Hit Rate:%f\n", 1 - $itor(is_mispredict_counter)/$itor(bp_valid_counter) );
     end 
     // end LAB2 code 
     always_comb begin : npc_select
@@ -437,7 +438,7 @@ module frontend import ariane_pkg::*; #(
     );
 
     bht #(
-      .NR_ENTRIES       ( ArianeCfg.BHTEntries   )
+      .NR_ENTRIES       ( ArianeCfg.BHTEntries   )// LAB2 part1 change this value to [4,8,16,64,128]
     ) i_bht (
       .clk_i,
       .rst_ni,
