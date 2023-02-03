@@ -52,9 +52,9 @@ module bht #(
 	
 
 	//PREDICTION_BITS - 1:ROW_ADDR_BITS + OFFSET -> this is m
-	assign index = {vpc_i [PREDICTION_BITS - 1 - GHR_bits : ROW_ADDR_BITS + OFFSET],GHR};
+	assign index = {vpc_i [PREDICTION_BITS - 1 - GHR_bits : ROW_ADDR_BITS + OFFSET],GHR}; // Gselect, predict index
 
-    assign update_pc = {bht_update_i.pc[PREDICTION_BITS - 1 - GHR_bits:ROW_ADDR_BITS + OFFSET], GHR};
+    assign update_pc = {bht_update_i.pc[PREDICTION_BITS - 1 - GHR_bits:ROW_ADDR_BITS + OFFSET], GHR}; //Gselect, update index
 
     if (ariane_pkg::RVC) begin : gen_update_row_index
       assign update_row_index = bht_update_i.pc[ROW_ADDR_BITS + OFFSET - 1:OFFSET];
@@ -103,7 +103,7 @@ module bht #(
         end else begin
             // evict all entries
             if (flush_i) begin
-				GHR <= '0;
+				GHR <= '0; // reset GHR to all bits to 0;
                 for (int i = 0; i < NR_ROWS; i++) begin
                     for (int j = 0; j < ariane_pkg::INSTR_PER_FETCH; j++) begin
                         bht_q[i][j].valid <=  1'b0;
