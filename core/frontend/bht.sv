@@ -51,10 +51,11 @@ module bht #(
     logic [1:0]                  saturation_counter;
 	
 
-    //assign index     = vpc_i[PREDICTION_BITS - 1:ROW_ADDR_BITS + OFFSET];
 	//PREDICTION_BITS - 1:ROW_ADDR_BITS + OFFSET -> this is m
 	assign index = {vpc_i [PREDICTION_BITS - 1 - GHR_bits : ROW_ADDR_BITS + OFFSET],GHR};
-    assign update_pc = bht_update_i.pc[PREDICTION_BITS - 1:ROW_ADDR_BITS + OFFSET];
+
+    assign update_pc = {bht_update_i.pc[PREDICTION_BITS - 1 - GHR_bits:ROW_ADDR_BITS + OFFSET], GHR};
+
     if (ariane_pkg::RVC) begin : gen_update_row_index
       assign update_row_index = bht_update_i.pc[ROW_ADDR_BITS + OFFSET - 1:OFFSET];
     end else begin
@@ -102,6 +103,7 @@ module bht #(
         end else begin
             // evict all entries
             if (flush_i) begin
+				GHR <= '0;
                 for (int i = 0; i < NR_ROWS; i++) begin
                     for (int j = 0; j < ariane_pkg::INSTR_PER_FETCH; j++) begin
                         bht_q[i][j].valid <=  1'b0;
