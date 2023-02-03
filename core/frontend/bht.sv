@@ -16,6 +16,7 @@
 // branch history table - 2 bit saturation counter
 module bht #(
     parameter int unsigned NR_ENTRIES = 1024
+	parameter GHR_bits = 4
 )(
     input  logic                        clk_i,
     input  logic                        rst_ni,
@@ -43,11 +44,16 @@ module bht #(
         logic [1:0] saturation_counter;
     } bht_d[NR_ROWS-1:0][ariane_pkg::INSTR_PER_FETCH-1:0], bht_q[NR_ROWS-1:0][ariane_pkg::INSTR_PER_FETCH-1:0];
 
+	logic [GHR_bits-1:0] GHR;//create local GHR
+
     logic [$clog2(NR_ROWS)-1:0]  index, update_pc;
     logic [ROW_INDEX_BITS-1:0]    update_row_index;
     logic [1:0]                  saturation_counter;
+	
 
-    assign index     = vpc_i[PREDICTION_BITS - 1:ROW_ADDR_BITS + OFFSET];
+    //assign index     = vpc_i[PREDICTION_BITS - 1:ROW_ADDR_BITS + OFFSET];
+	//PREDICTION_BITS - 1:ROW_ADDR_BITS + OFFSET -> this is m
+	assign index = {vpc_i [PREDICTION_BITS - 1 - GHR_bits : ROW_ADDR_BITS + OFFSET],GHR};
     assign update_pc = bht_update_i.pc[PREDICTION_BITS - 1:ROW_ADDR_BITS + OFFSET];
     if (ariane_pkg::RVC) begin : gen_update_row_index
       assign update_row_index = bht_update_i.pc[ROW_ADDR_BITS + OFFSET - 1:OFFSET];
