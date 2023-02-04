@@ -15,7 +15,7 @@
 
 // branch history table - 2 bit saturation counter
 module bht #(
-    parameter int unsigned NR_ENTRIES = 1024
+    parameter int unsigned NR_ENTRIES = 1024,
 	parameter GHR_bits = 4
 )(
     input  logic                        clk_i,
@@ -71,7 +71,6 @@ module bht #(
     always_comb begin : update_bht
         bht_d = bht_q;
         saturation_counter = bht_q[update_pc][update_row_index].saturation_counter;
-
         if (bht_update_i.valid && !debug_mode_i) begin
             bht_d[update_pc][update_row_index].valid = 1'b1;
 
@@ -112,6 +111,7 @@ module bht #(
                 end
             end else begin
                 bht_q <= bht_d;
+                GHR <= bht_update_i.valid ? {bht_update_i.taken, GHR[GHR_bits-1 : 1]} : GHR;
             end
         end
     end
