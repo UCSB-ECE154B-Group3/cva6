@@ -204,6 +204,7 @@ package ariane_pkg;
     // ^^^^ until here ^^^^
     // ---------------------
 
+    localparam riscv::xlen_t OPENHWGROUP_MVENDORID = {{riscv::XLEN-32{1'b0}}, 32'h0602};
     localparam riscv::xlen_t ARIANE_MARCHID = {{riscv::XLEN-32{1'b0}}, 32'd3};
 
     localparam riscv::xlen_t ISA_CODE = (RVA <<  0)  // A - Atomic Instructions extension
@@ -287,11 +288,10 @@ package ariane_pkg;
 
     localparam FETCH_USER_WIDTH = (cva6_config_pkg::CVA6ConfigFetchUserEn == 0) ? 1: cva6_config_pkg::CVA6ConfigFetchUserWidth;  // Possible cases: between 1 and 64
     localparam DATA_USER_WIDTH = (cva6_config_pkg::CVA6ConfigDataUserEn == 0) ? 1: cva6_config_pkg::CVA6ConfigDataUserWidth;    // Possible cases: between 1 and 64
-    localparam AXI_USER_WIDTH = DATA_USER_WIDTH > FETCH_USER_WIDTH*2 ? DATA_USER_WIDTH : FETCH_USER_WIDTH*2;
+    localparam AXI_USER_EN = cva6_config_pkg::CVA6ConfigDataUserEn | cva6_config_pkg::CVA6ConfigFetchUserEn;
+    localparam AXI_USER_WIDTH = AXI_USER_EN ? (DATA_USER_WIDTH > FETCH_USER_WIDTH*2 ? DATA_USER_WIDTH : FETCH_USER_WIDTH*2) : 1;
     localparam DATA_USER_EN = cva6_config_pkg::CVA6ConfigDataUserEn;
     localparam FETCH_USER_EN = cva6_config_pkg::CVA6ConfigFetchUserEn;
-    localparam AXI_USER_EN = cva6_config_pkg::CVA6ConfigDataUserEn | cva6_config_pkg::CVA6ConfigFetchUserEn;
-
 
     // ---------------
     // Fetch Stage
@@ -453,19 +453,19 @@ package ariane_pkg;
     localparam int unsigned DCACHE_USER_WIDTH  = DATA_USER_WIDTH;
 `else
     // I$
-    localparam int unsigned CONFIG_L1I_SIZE    = cva6_config_pkg::CVA6ConfigIcacheSetAssoc * 4096; // one icache way is 4 KBytes
+    localparam int unsigned CONFIG_L1I_SIZE    = cva6_config_pkg::CVA6ConfigIcacheByteSize; // in byte
     localparam int unsigned ICACHE_SET_ASSOC   = cva6_config_pkg::CVA6ConfigIcacheSetAssoc; // number of ways
     localparam int unsigned ICACHE_INDEX_WIDTH = $clog2(CONFIG_L1I_SIZE / ICACHE_SET_ASSOC);  // in bit, contains also offset width
     localparam int unsigned ICACHE_TAG_WIDTH   = riscv::PLEN-ICACHE_INDEX_WIDTH;  // in bit
-    localparam int unsigned ICACHE_LINE_WIDTH  = 128; // in bit
-    localparam int unsigned ICACHE_USER_LINE_WIDTH  = (AXI_USER_WIDTH == 1) ? 4 : 128; // in bit
+    localparam int unsigned ICACHE_LINE_WIDTH  = cva6_config_pkg::CVA6ConfigIcacheLineWidth; // in bit
+    localparam int unsigned ICACHE_USER_LINE_WIDTH  = (AXI_USER_WIDTH == 1) ? 4 : cva6_config_pkg::CVA6ConfigIcacheLineWidth; // in bit
     // D$
-    localparam int unsigned CONFIG_L1D_SIZE    = cva6_config_pkg::CVA6ConfigDcacheSetAssoc * 4096; // one icache way is 4 KBytes
+    localparam int unsigned CONFIG_L1D_SIZE    = cva6_config_pkg::CVA6ConfigDcacheByteSize; // in byte
     localparam int unsigned DCACHE_SET_ASSOC   = cva6_config_pkg::CVA6ConfigDcacheSetAssoc; // number of ways
     localparam int unsigned DCACHE_INDEX_WIDTH = $clog2(CONFIG_L1D_SIZE / DCACHE_SET_ASSOC);  // in bit, contains also offset width
     localparam int unsigned DCACHE_TAG_WIDTH   = riscv::PLEN-DCACHE_INDEX_WIDTH;  // in bit
-    localparam int unsigned DCACHE_LINE_WIDTH  = 128; // in bit
-    localparam int unsigned DCACHE_USER_LINE_WIDTH  = (AXI_USER_WIDTH == 1) ? 4 : 128; // in bit
+    localparam int unsigned DCACHE_LINE_WIDTH  = cva6_config_pkg::CVA6ConfigDcacheLineWidth; // in bit
+    localparam int unsigned DCACHE_USER_LINE_WIDTH  = (AXI_USER_WIDTH == 1) ? 4 : cva6_config_pkg::CVA6ConfigDcacheLineWidth; // in bit
     localparam int unsigned DCACHE_USER_WIDTH  = DATA_USER_WIDTH;
 `endif
 
@@ -689,6 +689,11 @@ package ariane_pkg;
 
      localparam int unsigned INSTR_TLB_ENTRIES = cva6_config_pkg::CVA6ConfigInstrTlbEntries;
      localparam int unsigned DATA_TLB_ENTRIES  = cva6_config_pkg::CVA6ConfigDataTlbEntries;
+
+    // -------------------
+    // Performance counter 
+    // -------------------
+    localparam bit PERF_COUNTER_EN = cva6_config_pkg::CVA6ConfigPerfCounterEn;
 
     // --------------------
     // Atomics

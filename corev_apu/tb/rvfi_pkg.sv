@@ -5,7 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH SHL-2.0
 // You may obtain a copy of the License at https://solderpad.org/licenses/
 //
-// Original Author: Jean-Roch COULON (jean-roch.coulon@thalesgroup.com)
+// Original Author: Jean-Roch COULON - Thales
 
 package rvfi_pkg;
 
@@ -32,7 +32,8 @@ package rvfi_pkg;
     logic [NRET*riscv::XLEN-1:0]     pc_rdata;
     logic [NRET*riscv::XLEN-1:0]     pc_wdata;
 
-    logic [NRET*riscv::XLEN-1:0]     mem_addr;
+    logic [NRET*riscv::VLEN-1:0]     mem_addr;
+    logic [NRET*riscv::PLEN-1:0]     mem_paddr;
     logic [NRET*(riscv::XLEN/8)-1:0] mem_rmask;
     logic [NRET*(riscv::XLEN/8)-1:0] mem_wmask;
     logic [NRET*riscv::XLEN-1:0]     mem_rdata;

@@ -261,6 +261,7 @@ module cva6 import ariane_pkg::*; #(
   logic                     dcache_commit_wbuffer_not_ni;
 
   logic [riscv::VLEN-1:0]               lsu_addr;
+  logic [riscv::PLEN-1:0]               mem_paddr;
   logic [(riscv::XLEN/8)-1:0]           lsu_rmask;
   logic [(riscv::XLEN/8)-1:0]           lsu_wmask;
   logic [ariane_pkg::TRANS_ID_BITS-1:0] lsu_addr_trans_id;
@@ -509,6 +510,7 @@ module cva6 import ariane_pkg::*; #(
     .pmpaddr_i              ( pmpaddr                     ),
     //RVFI
     .lsu_addr_o             ( lsu_addr                    ),
+    .mem_paddr_o            ( mem_paddr                   ),
     .lsu_rmask_o            ( lsu_rmask                   ),
     .lsu_wmask_o            ( lsu_wmask                   ),
     .lsu_addr_trans_id_o    ( lsu_addr_trans_id           )
@@ -618,30 +620,33 @@ module cva6 import ariane_pkg::*; #(
     .time_irq_i,
     .*
   );
+
   // ------------------------
   // Performance Counters
   // ------------------------
-  perf_counters i_perf_counters (
-    .clk_i             ( clk_i                  ),
-    .rst_ni            ( rst_ni                 ),
-    .debug_mode_i      ( debug_mode             ),
-    .addr_i            ( addr_csr_perf          ),
-    .we_i              ( we_csr_perf            ),
-    .data_i            ( data_csr_perf          ),
-    .data_o            ( data_perf_csr          ),
-    .commit_instr_i    ( commit_instr_id_commit ),
-    .commit_ack_i      ( commit_ack             ),
+  if (PERF_COUNTER_EN) begin: gen_perf_counter
+    perf_counters i_perf_counters (
+      .clk_i             ( clk_i                  ),
+      .rst_ni            ( rst_ni                 ),
+      .debug_mode_i      ( debug_mode             ),
+      .addr_i            ( addr_csr_perf          ),
+      .we_i              ( we_csr_perf            ),
+      .data_i            ( data_csr_perf          ),
+      .data_o            ( data_perf_csr          ),
+      .commit_instr_i    ( commit_instr_id_commit ),
+      .commit_ack_i      ( commit_ack             ),
 
-    .l1_icache_miss_i  ( icache_miss_cache_perf ),
-    .l1_dcache_miss_i  ( dcache_miss_cache_perf ),
-    .itlb_miss_i       ( itlb_miss_ex_perf      ),
-    .dtlb_miss_i       ( dtlb_miss_ex_perf      ),
-    .sb_full_i         ( sb_full                ),
-    .if_empty_i        ( ~fetch_valid_if_id     ),
-    .ex_i              ( ex_commit              ),
-    .eret_i            ( eret                   ),
-    .resolved_branch_i ( resolved_branch        )
-  );
+      .l1_icache_miss_i  ( icache_miss_cache_perf ),
+      .l1_dcache_miss_i  ( dcache_miss_cache_perf ),
+      .itlb_miss_i       ( itlb_miss_ex_perf      ),
+      .dtlb_miss_i       ( dtlb_miss_ex_perf      ),
+      .sb_full_i         ( sb_full                ),
+      .if_empty_i        ( ~fetch_valid_if_id     ),
+      .ex_i              ( ex_commit              ),
+      .eret_i            ( eret                   ),
+      .resolved_branch_i ( resolved_branch        )
+    );
+  end
 
   // ------------
   // Controller
@@ -1012,6 +1017,8 @@ module cva6 import ariane_pkg::*; #(
       rvfi_o[i].pc_rdata = commit_instr_id_commit[i].pc;
 `ifdef RVFI_MEM
       rvfi_o[i].mem_addr  = commit_instr_id_commit[i].lsu_addr;
+      // So far, only write paddr is reported. TODO: read paddr
+      rvfi_o[i].mem_paddr = mem_paddr;
       rvfi_o[i].mem_wmask = commit_instr_id_commit[i].lsu_wmask;
       rvfi_o[i].mem_wdata = commit_instr_id_commit[i].lsu_wdata;
       rvfi_o[i].mem_rmask = commit_instr_id_commit[i].lsu_rmask;

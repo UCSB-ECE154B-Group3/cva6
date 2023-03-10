@@ -1,5 +1,5 @@
 ..
-   Copyright (c) 2022 Thales
+   Copyright (c) 2022 OpenHW Group
 
    Licensed under the Solderpad Hardware Licence, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -15,17 +15,32 @@
 
    SPDX-License-Identifier: Apache-2.0 WITH SHL-2.0
 
-CV32A6 Design Document
-======================
+CVA6 Design Document
+====================
+Editor: **Florian Zaruba**
+`florian@openhwgroup.org <mailto:florian@openhwgroup.org?subject=CVA6%20Design%20Document>`__
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
    :caption: Contents:
 
-   cv32a6_intro
-   cv32a6_subsystem
-   cv32a6_frontend
-   cv32a6_isa
-   cv32a6_csr
-   cv32a6_axi
-   cv32a6_glossary
+   intro
+   pcgen_stage
+   if_stage
+   id_stage
+   issue_stage
+   ex_stage
+   commit_stage
+
+Indices and tables
+------------------
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+
+Documentation
+-------------
+
+The documentation is re-generated on pushes to master.
+When contributing to the project please consider the [contribution guide](https://github.com/openhwgroup/cva6/blob/master/CONTRIBUTING.md).
