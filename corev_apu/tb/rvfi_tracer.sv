@@ -71,7 +71,7 @@ module rvfi_tracer #(
           end
         end
         $fwrite(f, "\n");
-        if (rvfi_i[i].insn == 32'h00000073) begin
+        if (rvfi_i[i].insn == 32'h00000073 && rvfi_i[i].mode == riscv::PRIV_LVL_M) begin
           $finish(1);
           $finish(1);
         end
